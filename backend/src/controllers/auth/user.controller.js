@@ -90,7 +90,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     if (!userExists) {
         //400 Bad Request
-        res.status(400).json({ message: "UInvalid Credentials!" });
+        res.status(400).json({ message: "Invalid Credentials!" });
     }
 
     // generate token with user id
@@ -122,4 +122,9 @@ export const loginUser = asyncHandler(async (req, res) => {
     } else {
         res.status(400).json({ message: "Invalid email or password" })
     }
+});
+
+export const logoutsUser = asyncHandler(async (req, res) => {
+    res.clearCookie("token");
+    res.status(200).json({ message: "User logged out" })
 });
