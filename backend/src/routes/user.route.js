@@ -9,6 +9,6 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutsUser);
 router.get('/user', protect, getUser);
-router.post('/update-user', protect, updateUser);
+router.patch('/user', protect, updateUser);
 
 export default router;
