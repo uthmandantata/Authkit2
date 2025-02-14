@@ -26,9 +26,28 @@ export const protect = asyncHandler(async (req, res, next) => {
         // set user details in the request object
         req.user = user;
 
-        next()
+        next();
     } catch (error) {
         // 401 Unauthorized
         res.status(401).json({ message: "Not authorized, please login!" })
+    }
+});
+
+
+// admin middleware
+export const adminMiddleware = asyncHandler(async (req, res, next) => {
+    try {
+        if (req.user && req.user.role === "admin") {
+            // if user is admin, move to the next middleware/controller
+            next();
+            return;
+        }
+        // if not user is admin, move to the next middleware/controller
+        res.status(403).json({ message: "You are not authorized | Only Admin" })
+
+        // next();
+    } catch (error) {
+        // 401 Unauthorized
+        res.status(401).json({ message: "Not authorized!" })
     }
 });
