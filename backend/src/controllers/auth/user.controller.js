@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler"
 import User from "../../models/auth/user.models.js";
 import generatedToken from "../../helpers/generateToken.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 
 
@@ -169,5 +170,23 @@ export const updateUser = asyncHandler(async (req, res) => {
     } else {
         // 404 not found
         res.status(404).json({ message: "Could not update user" })
+    }
+});
+
+// userLoginStatus
+export const userLoginStatus = asyncHandler(async (req, res) => {
+    // get user details from the token -----> exclude password
+    const token = req.cookies.token
+    if (!token) {
+        // 401 Unauthorized
+        res.status(401).json({ message: "Not authorized, please login!" })
+    }
+
+    // verify the token
+    const decode = jwt.verify(token, process.env.JWT_SECRET)
+    if (decode) {
+        res.status(200).json(true)
+    } else {
+        res.status(401).json(false)
     }
 });
