@@ -23,3 +23,16 @@ export const deleteUser = asyncHandler(async (req, res) => {
     }
 
 });
+
+
+// get all user
+export const getAllUsers = asyncHandler(async (req, res) => {
+    // get user details from the token -----> exclude password
+    const user = await User.find()
+    if (!user) {
+        res.status(200).json(user)
+    } else {
+        // 404 not found
+        res.status(404).json({ message: "Users not found!" })
+    }
+});

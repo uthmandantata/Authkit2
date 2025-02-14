@@ -51,3 +51,44 @@ export const adminMiddleware = asyncHandler(async (req, res, next) => {
         res.status(401).json({ message: "Not authorized!" })
     }
 });
+
+
+
+
+// creator middleware
+export const creatorMiddleware = asyncHandler(async (req, res, next) => {
+    try {
+        if ((req.user && req.user.role === "admin") && (req.user && req.user.role === "creator")) {
+            // if user is creator, move to the next middleware/controller
+            next();
+            return;
+        }
+        // if not user is creator, move to the next middleware/controller
+        res.status(403).json({ message: "You are not authorized | Only Creators" })
+
+        // next();
+    } catch (error) {
+        // 401 Unauthorized
+        res.status(401).json({ message: "Not authorized!" })
+    }
+});
+
+
+
+// verified middleware
+export const verifiedMiddleware = asyncHandler(async (req, res, next) => {
+    try {
+        if (req.user && req.user.isVerified) {
+            // if user is creator, move to the next middleware/controller
+            next();
+            return;
+        }
+        // if not user is creator, move to the next middleware/controller
+        res.status(403).json({ message: "Not Verified" })
+
+        // next();
+    } catch (error) {
+        // 401 Unauthorized
+        res.status(401).json({ message: "Not Verified!" })
+    }
+});
