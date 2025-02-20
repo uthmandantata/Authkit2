@@ -286,3 +286,61 @@ export const verifyUser = asyncHandler(async (req, res, next) => {
     await user.save();
     res.status(200).json({ message: "User verified" })
 })
+
+// forgot password
+export const forgotPassword = asyncHandler(async (req, res, next) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+    }
+
+    // check if user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        // 404 Not Found
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // see if reset token exists
+    let token = await Token.findOne({ userId: user._id });
+
+    // if token exisits ---> delete the token
+    if (token) {
+        await token.deleteOne();
+    }
+
+    // create a reset token using the user id ---> expires in 1 hour
+    const passwordResetToken = crypto.randomBytes(64).toString('hex') + user._id;
+
+    // hash the reset token
+    const hashedToken = hashToken(passwordResetToken);
+
+    await Token({
+        userId: user._id,
+        passwordResetToken: hashedToken,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 60 * 60 * 1000, // 1 hour
+    }).save();
+
+    // reset link
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${passwordResetToken}`;
+
+    // send email to user
+    const subject = "Password Reset - AuthKit";
+    const send_to = user.email;
+    const reply_to = "noreply@gmail.com";
+    const template = "forgotPassword";
+    const send_from = process.env.USER_EMAIL;
+    const name = user.name;
+    const link = resetLink;
+
+    try {
+        await sendEmail(subject, send_to, reply_to, template, send_from, name, link)
+        return res.json({ message: "Email sent" })
+    } catch (error) {
+        console.log("Error sending email: ", error);
+        return res.status(500).json({ message: "Email could not be sent" })
+    }
+});
